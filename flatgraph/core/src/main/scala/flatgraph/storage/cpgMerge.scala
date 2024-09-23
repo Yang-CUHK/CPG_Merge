@@ -26,22 +26,23 @@ object cpgMerge{
       val storagePathMaybe =
         if (persistOnClose) Option(storagePath)
         else None
-      val g        = existGrapgh//new Graph(schema, storagePathMaybe)
-      //val gg = g.neighbors(4377)
-      //println(gg)
+      val g        = existGrapgh
    
       val nodekinds = mutable.HashMap[String, Short]()
       
-      val v        = new Graph(schema,storagePathMaybe)
+      val v        = existGrapgh
      
       for (nodeKind <- g.schema.nodeKinds) nodekinds(g.schema.getNodeLabel(nodeKind)) = {
-       
         nodeKind.toShort
       }
       val kindRemapper = Array.fill(manifest.nodes.size)(-1.toShort)
       val nodeRemapper = new Array[Array[GNode]](manifest.nodes.length)
 
       //println(manifest.nodes.length)
+
+      val count_Old_Node = new Array[Int](44)
+
+      val count_New_Node = new Array[Int](44)
 
       for {
         (nodeItem, idx) <- manifest.nodes.zipWithIndex
@@ -50,11 +51,18 @@ object cpgMerge{
         kindRemapper(idx) = nodeKind
 
         val existLength = g.nodesArray(nodeKind).length
+        count_Old_Node(nodeKind) = existLength
+        count_New_Node(nodeKind) = nodeItem.nnodes
         //println(nodeKind)
 
         val nodes = new Array[GNode](nodeItem.nnodes+existLength)
 
-        for (seq <- Range(existLength, nodes.length)) /*println(seq)*/nodes(seq) = g.schema.makeNode(g, nodeKind, seq)
+        val node_tem = g.nodesArray(nodeKind)
+
+        for (seq <- Range(0, nodes.length)) /*println(seq)*/{
+          nodes(seq) = g.schema.makeNode(g, nodeKind, seq)
+        }
+
     
         g.nodesArray(nodeKind) = nodes
         nodeRemapper(idx) = nodes
@@ -103,6 +111,9 @@ object cpgMerge{
         val direction = Direction.fromOrdinal(edgeItem.inout)       
         if (nodeKind.isDefined && edgeKind.isDefined) {
           val pos = g.schema.neighborOffsetArrayIndex(nodeKind.get, direction, edgeKind.get)
+          g.neighbors(pos) = deltaDecode(readArray(fileChannel, edgeItem.qty, nodeRemapper, pool).asInstanceOf[Array[Int]])
+          g.neighbors(pos + 1) = readArray(fileChannel, edgeItem.neighbors, nodeRemapper, pool)
+          //for(i <- g.neighbors(pos+1).asInstanceOf[Array[GNode]]) println(i)
           
           val tem1 = g.neighbors(pos)
           g.neighbors(pos) = deltaDecode(readArray(fileChannel, edgeItem.qty, nodeRemapper, pool).asInstanceOf[Array[Int]])
@@ -180,17 +191,21 @@ object cpgMerge{
 
 
  
-          g.neighbors(pos + 1) = readArray(fileChannel, edgeItem.neighbors, nodeRemapper, pool)
-
-          var newLength2 = 0
-          if(g.neighbors(pos+1) != null){
-            newLength2 = g.neighbors(pos + 1).asInstanceOf[Array[GNode]].length 
-          }
 
           var oldLength2 = 0
           val tem2 = g.neighbors(pos+1)
           if(g.neighbors(pos+1) != null){
             oldLength2 = tem2.asInstanceOf[Array[GNode]].length 
+          }
+
+
+          g.neighbors(pos + 1) = readArray(fileChannel, edgeItem.neighbors, nodeRemapper, pool)
+          // println("---")
+          // for(i <- g.neighbors(pos + 1).asInstanceOf[Array[GNode]]) println(i)
+
+          var newLength2 = 0
+          if(g.neighbors(pos+1) != null){
+            newLength2 = g.neighbors(pos + 1).asInstanceOf[Array[GNode]].length 
           }
 
           val mergeLength2 = oldLength2 + newLength2
@@ -202,8 +217,16 @@ object cpgMerge{
           }
          
           for(i <- oldLength2 to mergeLength2-1){
-           
-            mergeArray2(i) = g.neighbors(pos+1).asInstanceOf[Array[GNode]](i-oldLength2)
+            val tem_Node = g.neighbors(pos+1).asInstanceOf[Array[GNode]](i-oldLength2)
+            val add_Node = g.nodesArray(tem_Node.nodeKind)(tem_Node.seq + count_Old_Node(tem_Node.nodeKind))
+            mergeArray2(i) = add_Node
+            // println("---")
+            // println(tem_Node)
+            // println(add_Node)
+            // println(count_Old_Node(mergeArray2(i).nodeKind))
+            // println(count_New_Node(mergeArray2(i).nodeKind))
+            // println(g.nodesArray(mergeArray2(i).nodeKind).length)
+            // println(mergeArray2(i))
           }
           g.neighbors(pos+1) = mergeArray2
 

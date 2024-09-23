@@ -52,9 +52,9 @@ import flatgraph.formats.neo4jcsv.Neo4jCsvExporter
 
 def main(args: Array[String]): Unit = {
   println("Please enter the location of first CPG:")
-  //val filename = StdIn.readLine()
+  val filename = StdIn.readLine()
   //println(name)
-  val filename = "/home/yang/Desktop/summer/workspace/example-c/cpg.bin"
+  //val filename = "/home/yang/Desktop/summer/workspace/example-c/cpg.bin"
   val path = Paths.get(filename)
   val absolutePath = path.toAbsolutePath
   //println(absolutePath)
@@ -66,22 +66,24 @@ def main(args: Array[String]): Unit = {
   //println(tem2)
 
 
-  //println("Please enter the location of second CPG:")
-  //val newFileName = StdIn.readLine()
-  val newFileName = "/home/yang/Desktop/summer/workspace/test-py/cpg.bin"
+  println("Please enter the location of second CPG:")
+  val newFileName = StdIn.readLine()
+  //val newFileName = "/home/yang/Desktop/summer/workspace/test-py/cpg.bin"
   val newPath = Paths.get(newFileName)
   val newAbsolutePath = newPath.toAbsolutePath
+  val tem6 = Deserialization.readGraph(newAbsolutePath, Option(GraphSchema), true)
+  //println(tem6)
   //println(newAbsolutePath)
   val tem3 = cpgMerge.readGraph(newAbsolutePath, Option(GraphSchema), tem2,true)
   //println(tem3)
   val tem5 = new Cpg(tem3)
-  println(tem5)
+  //println(tem5)
   //println(tem5)
 
 
-  //println("Please enter the location to store the merged CPG:")
-  //val storeFileName = StdIn.readLine()
-  val storeFileName = "/home/yang/Desktop/summer/The_store_result/cpg.bin"
+  println("Please enter the location to store the merged CPG:")
+  val storeFileName = StdIn.readLine()
+  //val storeFileName = "/home/yang/Desktop/summer/The_store_result/cpg.bin"
   val storePath = Paths.get(storeFileName)
   val storeAbsolutePath = storePath.toAbsolutePath
   //println(storeAbsolutePath)

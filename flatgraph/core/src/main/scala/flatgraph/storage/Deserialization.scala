@@ -16,6 +16,7 @@ object Deserialization {
 
   def readGraph(storagePath: Path, schemaMaybe: Option[Schema], persistOnClose: Boolean = true): Graph = {
     val fileChannel = new java.io.RandomAccessFile(storagePath.toAbsolutePath.toFile, "r").getChannel
+    // println("change")
     try {
       // fixme: Use convenience methods from schema to translate string->id. Fix after we get strict schema checking.
       val manifest = GraphItem.read(readManifest(fileChannel))
@@ -70,6 +71,7 @@ object Deserialization {
         }
       }
 
+
       for (edgeItem <- manifest.edges) {
         val nodeKind  = nodekinds.get(edgeItem.nodeLabel)
         val edgeKind  = edgeKinds.get(edgeItem.nodeLabel, edgeItem.edgeLabel)
@@ -83,6 +85,8 @@ object Deserialization {
           //else if(nodeKind.map(_.toInt).getOrElse(0) == -5) println("cannot")
           g.neighbors(pos) = deltaDecode(readArray(fileChannel, edgeItem.qty, nodeRemapper, pool).asInstanceOf[Array[Int]])
           g.neighbors(pos + 1) = readArray(fileChannel, edgeItem.neighbors, nodeRemapper, pool)
+          // println("---")
+          // for(i <- g.neighbors(pos + 1).asInstanceOf[Array[GNode]]) println(i)
           val property = readArray(fileChannel, edgeItem.property, nodeRemapper, pool)
           if (property != null)
             g.neighbors(pos + 2) = property
