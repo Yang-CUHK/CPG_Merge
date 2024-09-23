@@ -51,6 +51,9 @@ object DotExporter extends Exporter {
 
       edges.iterator.foreach { edge =>
         edgeCount += 1
+        //println("---")
+        //println(edge.src.id())
+       //println(edge.dst.id())
         val line = new StringBuffer()
           .append(s"  ${edge.src.id()} -> ${edge.dst.id()} ")
           .append(s"[label=${edge.label} ")

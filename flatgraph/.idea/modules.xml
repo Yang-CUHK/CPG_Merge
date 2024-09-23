@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flatgraph.iml" filepath="$PROJECT_DIR$/.idea/modules/flatgraph.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-build.iml" filepath="$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-core.iml" filepath="$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-domain-classes-generator.domain-classes-generator-sources.iml" filepath="$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-domain-classes-generator.domain-classes-generator-sources.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-domain-classes-generator.domainClassesGenerator_2_12.iml" filepath="$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-domain-classes-generator.domainClassesGenerator_2_12.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-domain-classes-generator.domainClassesGenerator_3.iml" filepath="$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-domain-classes-generator.domainClassesGenerator_3.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-formats.iml" filepath="$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-formats.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-help.iml" filepath="$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-help.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-odb-convert.iml" filepath="$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-odb-convert.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-tests.iml" filepath="$PROJECT_DIR$/.idea/modules/flatgraph.flatgraph-tests.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flatgraph.sbt-flatgraph.iml" filepath="$PROJECT_DIR$/.idea/modules/flatgraph.sbt-flatgraph.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flatgraph.test-schemas.iml" filepath="$PROJECT_DIR$/.idea/modules/flatgraph.test-schemas.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flatgraph.test-schemas-domain-classes.iml" filepath="$PROJECT_DIR$/.idea/modules/flatgraph.test-schemas-domain-classes.iml" />
+    </modules>
+  </component>
+</project>

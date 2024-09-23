@@ -34,8 +34,18 @@ object Deserialization {
         nodeKind        <- nodekinds.get(nodeItem.nodeLabel)
       } {
         kindRemapper(idx) = nodeKind
+        // if(nodeKind == 7){
+        //   println(nodeItem.nnodes)
+        // }
         val nodes = new Array[GNode](nodeItem.nnodes)
         for (seq <- Range(0, nodes.length)) nodes(seq) = g.schema.makeNode(g, nodeKind, seq)
+        // println("---")
+        // println(nodeItem.nnodes)
+        // println(nodes.length
+        // println(nodes.length)
+        // println("???")
+        // for (seq <- Range(0, nodes.length)) println(seq)
+        // println("!!!")
         g.nodesArray(nodeKind) = nodes
         nodeRemapper(idx) = nodes
         if (nodeItem.deletions != null) {
@@ -66,11 +76,42 @@ object Deserialization {
         val direction = Direction.fromOrdinal(edgeItem.inout)
         if (nodeKind.isDefined && edgeKind.isDefined) {
           val pos = g.schema.neighborOffsetArrayIndex(nodeKind.get, direction, edgeKind.get)
+          // if(nodeKind.map(_.toInt).getOrElse(-5) == 7) {
+          //   println(pos)
+          //   println(edgeKind)
+          // }
+          //else if(nodeKind.map(_.toInt).getOrElse(0) == -5) println("cannot")
           g.neighbors(pos) = deltaDecode(readArray(fileChannel, edgeItem.qty, nodeRemapper, pool).asInstanceOf[Array[Int]])
           g.neighbors(pos + 1) = readArray(fileChannel, edgeItem.neighbors, nodeRemapper, pool)
           val property = readArray(fileChannel, edgeItem.property, nodeRemapper, pool)
           if (property != null)
             g.neighbors(pos + 2) = property
+            // println(g.neighbors(pos).asInstanceOf[Array[Int]].length)
+            // println(g.neighbors(pos+1).asInstanceOf[Array[GNode]].length)
+            // println(g.neighbors(pos+2).asInstanceOf[Array[String]].length)
+            // println("finish")
+            // println("-----")
+
+            // println("first")
+            // println(g.neighbors(pos).asInstanceOf[Array[Int]].length)
+            // println("content")
+            // var counter = 0
+            // for(a <- g.neighbors(pos).asInstanceOf[Array[Int]] ) {
+            //   println(a)
+            //   counter += a
+            // }
+            // print("total count:")
+            // println(counter)
+            // println("second")
+            // println(g.neighbors(pos+1).asInstanceOf[Array[GNode]].length)
+            // println("content")
+            // for(b <- g.neighbors(pos+1).asInstanceOf[Array[GNode]] ) println(b)
+            // println("third")
+            // println(g.neighbors(pos+2).asInstanceOf[Array[String]].length)
+            // println("content")
+            // for(c <- g.neighbors(pos+2).asInstanceOf[Array[String]] ) println(c)
+
+            // println("-----")
         }
       }
 
@@ -93,6 +134,34 @@ object Deserialization {
           val pos = g.schema.propertyOffsetArrayIndex(nodeKind.get, propertyKind.get)
           g.properties(pos) = deltaDecode(readArray(fileChannel, property.qty, nodeRemapper, pool).asInstanceOf[Array[Int]])
           g.properties(pos + 1) = readArray(fileChannel, property.property, nodeRemapper, pool)
+
+          // println("first")
+          // println(g.properties(pos).asInstanceOf[Array[Int]].length)
+          // println("content")
+          // for(a <- g.properties(pos).asInstanceOf[Array[Int]]) println(a)
+          // println("second")
+          // if(g.properties(pos+1).isInstanceOf[Array[String]]){
+          //   //println("true")
+            // println(g.properties(pos+1).asInstanceOf[Array[String]].length)
+          //   println("String content")
+          //   for(a <- g.properties(pos+1).asInstanceOf[Array[String]]) println(a)
+          // }else if(g.properties(pos+1).isInstanceOf[Array[Int]]){
+          //   // println(g.properties(pos+1).getClass)
+          //   // println(g.properties(pos+1).isInstanceOf[Array[Int]])
+            // println(g.properties(pos+1).asInstanceOf[Array[Int]].length)
+          //   println("Int content")
+          //   for(a <- g.properties(pos+1).asInstanceOf[Array[Int]]) println(a)
+          // }else{
+          //   println(g.properties(pos+1).asInstanceOf[Array[Boolean]].length)
+          //   println("Boolean content")
+          //   for(a <- g.properties(pos+1).asInstanceOf[Array[Boolean]]) println(a)
+          //   // println(g.properties(pos+1).getClass)
+          //   // println(g.properties(pos+1).isInstanceOf[Array[Boolean]])
+          //   // println("fhiasukgfuasgdciucvguvuigcxiKGiuydsukgcfukdcfvbuydvcyuffvfcyudcb")
+          // }
+          // println(g.properties(pos+1).asInstanceOf[Array[String]].length)
+          // println("content")
+          // for(a <- g.properties(pos+1).asInstanceOf[Array[String]]) println(a)
         }
       }
       g

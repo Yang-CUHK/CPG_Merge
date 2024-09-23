@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="sbt: io.shiftleft:overflowdb-core_3:1.181:jar" external-system-id="SBT">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.cache/coursier/v1/https/repo1.maven.org/maven2/io/shiftleft/overflowdb-core_3/1.181/overflowdb-core_3-1.181.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.cache/coursier/v1/https/repo1.maven.org/maven2/io/shiftleft/overflowdb-core_3/1.181/overflowdb-core_3-1.181-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

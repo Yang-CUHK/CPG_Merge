@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaCompilerConfiguration">
+    <profile name="sbt 1" modules="flatgraph_3899" />
+    <profile name="sbt 2" modules="flatgraph,flatgraph.flatgraph-core,flatgraph.flatgraph-domain-classes-generator.domainClassesGenerator_3,flatgraph.flatgraph-formats,flatgraph.flatgraph-help,flatgraph.flatgraph-odb-convert,flatgraph.flatgraph-tests,flatgraph.test-schemas,flatgraph.test-schemas-domain-classes">
+      <option name="implicitConversions" value="true" />
+      <option name="deprecationWarnings" value="true" />
+      <option name="featureWarnings" value="true" />
+      <parameters>
+        <parameter value="--release" />
+        <parameter value="8" />
+      </parameters>
+    </profile>
+    <profile name="sbt 3" modules="flatgraph.flatgraph-domain-classes-generator.domainClassesGenerator_2_12">
+      <option name="implicitConversions" value="true" />
+      <option name="deprecationWarnings" value="true" />
+      <option name="featureWarnings" value="true" />
+    </profile>
+    <profile name="sbt 4" modules="flatgraph.sbt-flatgraph">
+      <option name="implicitConversions" value="true" />
+      <option name="deprecationWarnings" value="true" />
+      <option name="featureWarnings" value="true" />
+      <parameters>
+        <parameter value="-Wconf:cat=unused-nowarn:s" />
+        <parameter value="-Xsource:3" />
+      </parameters>
+    </profile>
+  </component>
+</project>

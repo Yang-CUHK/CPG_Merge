@@ -8,6 +8,7 @@ val scala2_12 = "2.12.18"
 
 
 libraryDependencies += "io.shiftleft" %% "codepropertygraph" % "1.7.7"
+libraryDependencies += "io.shiftleft" %% "codepropertygraph-domain-classes" % "1.7.7"
 //libraryDependencies += "org.joern" %% "joern-cli" % "4.0.28"
 
 

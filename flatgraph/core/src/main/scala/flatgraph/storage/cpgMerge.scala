@@ -27,22 +27,22 @@ object cpgMerge{
         if (persistOnClose) Option(storagePath)
         else None
       val g        = existGrapgh//new Graph(schema, storagePathMaybe)
-      //println(g)
+      //val gg = g.neighbors(4377)
+      //println(gg)
+   
       val nodekinds = mutable.HashMap[String, Short]()
-      //println(g.schema)
-      //println(g.schema.nodeKinds)
+      
       val v        = new Graph(schema,storagePathMaybe)
-      //println(v.schema)
-      //println(v.schema.nodeKinds)
-      //println(manifest.nodes.size)
-      //println(manifest.nodes.length)
+     
       for (nodeKind <- g.schema.nodeKinds) nodekinds(g.schema.getNodeLabel(nodeKind)) = {
-        //println(nodeKind.toShort)
+       
         nodeKind.toShort
       }
       val kindRemapper = Array.fill(manifest.nodes.size)(-1.toShort)
       val nodeRemapper = new Array[Array[GNode]](manifest.nodes.length)
-      //println(g)
+
+      //println(manifest.nodes.length)
+
       for {
         (nodeItem, idx) <- manifest.nodes.zipWithIndex
         nodeKind        <- nodekinds.get(nodeItem.nodeLabel)
@@ -50,19 +50,12 @@ object cpgMerge{
         kindRemapper(idx) = nodeKind
 
         val existLength = g.nodesArray(nodeKind).length
-        //println(existLength)
-        //println(nodeItem.nnodes)
-        val nodes = new Array[GNode](nodeItem.nnodes+existLength)
-        //println("hello")
-        //println(nodes.length)
-        //println("hello")
-        //println(existLength)
-        //println(nodeItem.nnodes+existLength)
-        //println("world")
-        for (seq <- Range(existLength, nodes.length)) /*println(seq)*/nodes(seq) = g.schema.makeNode(g, nodeKind, seq)
         //println(nodeKind)
-        //println("?")
-        //for( tem <- g.nodesArray(nodeKind)) println(tem)
+
+        val nodes = new Array[GNode](nodeItem.nnodes+existLength)
+
+        for (seq <- Range(existLength, nodes.length)) /*println(seq)*/nodes(seq) = g.schema.makeNode(g, nodeKind, seq)
+    
         g.nodesArray(nodeKind) = nodes
         nodeRemapper(idx) = nodes
         if (nodeItem.deletions != null) {
@@ -74,60 +67,211 @@ object cpgMerge{
           g.livingNodeCountByKind(nodeKind) = nodes.length - nodeItem.deletions.length
         } else g.livingNodeCountByKind(nodeKind) = nodes.length
       }
+      //println(g.schema.edgeKinds.length)
 
-      //println(g)
+
 
       val edgeKinds = mutable.HashMap[(String, String), Short]()
       for {
         nodeKind <- g.schema.nodeKinds
         edgeKind <- g.schema.edgeKinds
       } {
+        // println(nodeKind)
+        // println(edgeKind)
+        // println("---")
         val nodeLabel = g.schema.getNodeLabel(nodeKind)
         val edgeLabel = g.schema.getEdgeLabel(nodeKind, edgeKind)
-//        println(nodeKind)
-//        println(edgeKind)
-//        println(nodeLabel)
-//        println(edgeLabel)
+  
         if (edgeLabel != null) {
           edgeKinds((nodeLabel, edgeLabel)) = edgeKind.toShort
-//          println("hello")
-//          println(nodeLabel)
-//          println(edgeLabel)
-//          println(edgeKind)
-//          println(edgeKind.toShort)
+
         }
       }
 
+      // for(nodeKind <- 0 to 43){
+      //   for(edgeKind <- 0 to 23){
+      //     println(nodeKind)
+      //     println(edgeKind)
+      //     println("----")
+      //   }
+
+      // }
+
       for (edgeItem <- manifest.edges) {
-        //println(manifest.edges)
-//        println(edgeItem.nodeLabel)
-        val nodeKind  = nodekinds.get(edgeItem.nodeLabel)
-//        println(edgeItem.nodeLabel)
-//        println(nodeKind)
+        val nodeKind  = nodekinds.get(edgeItem.nodeLabel)     
         val edgeKind  = edgeKinds.get(edgeItem.nodeLabel, edgeItem.edgeLabel)
-//        println("hello")
-//        println(edgeKind)
-//        println(edgeItem.nodeLabel)
-//        println(edgeItem.edgeLabel)
-        val direction = Direction.fromOrdinal(edgeItem.inout)
-//        println(edgeItem.inout)
-//        println(direction)
+        val direction = Direction.fromOrdinal(edgeItem.inout)       
         if (nodeKind.isDefined && edgeKind.isDefined) {
           val pos = g.schema.neighborOffsetArrayIndex(nodeKind.get, direction, edgeKind.get)
-          //println(pos)
-          //val pos_new = g.schema.neighborOffsetArrayIndex(nodeKind.get, direction, edgeKind.get)
-          //println(pos_new)
-//
-//          println(nodeKind.get)
-//          println(direction)
-//          println(edgeKind.get)
-//          println(pos)
+          
+          val tem1 = g.neighbors(pos)
           g.neighbors(pos) = deltaDecode(readArray(fileChannel, edgeItem.qty, nodeRemapper, pool).asInstanceOf[Array[Int]])
+          var oldLength = 0
+          if(tem1 != null){
+            oldLength = tem1.asInstanceOf[Array[Int]].length
+          }
+
+          var tt = 1
+          if(oldLength != 0) tt = oldLength
+         
+          val newLength = g.neighbors(pos).asInstanceOf[Array[Int]].length
+         
+
+
+
+          val mergeLength = g.nodesArray(nodeKind.map(_.toInt).getOrElse(0)).length + 1
+          //println(tt+newLength)
+          //println(mergeLength)
+
+          val mergeArray1 = new Array[Int](mergeLength)
+          
+          if(tt+newLength - g.nodesArray(nodeKind.map(_.toInt).getOrElse(0)).length == 2){
+            for(i <- 0 to oldLength-1){
+              mergeArray1(i) = tem1.asInstanceOf[Array[Int]](i)
+            }
+            //println(oldLength)
+            //println(tem1.asInstanceOf[Array[Int]].length)
+            if(oldLength == 0){
+              for(i <- oldLength to mergeLength-1){
+                mergeArray1(i) = g.neighbors(pos).asInstanceOf[Array[Int]](i)
+              }
+            }else{
+              for(i <- oldLength to mergeLength-1){
+              // println("---")
+              // println(oldLength)
+              // println(mergeLength)
+              // println(i)
+              // println(i-oldLength+1)
+              mergeArray1(i) = g.neighbors(pos).asInstanceOf[Array[Int]](i-oldLength+1) + mergeArray1(oldLength-1)
+            }
+            }
+          }else{
+            for(i <- mergeLength-newLength to mergeLength -1){
+              mergeArray1(i) = g.neighbors(pos).asInstanceOf[Array[Int]](i - mergeLength + newLength)
+            }
+
+          }
+          // println("---")
+          // if(tem1 != null)
+          //   for(i <- tem1.asInstanceOf[Array[Int]]) println(i)
+          // println("second")
+          // if(g.neighbors(pos) != null)
+          //   for(i <-  g.neighbors(pos).asInstanceOf[Array[Int]]) println(i)
+          // println("third")
+          // for(i <- mergeArray1) println(i)
+
+          // println("!!!")
+          // if(tt+newLength - g.nodesArray(nodeKind.map(_.toInt).getOrElse(0)).length != 2){
+          //   println("start")
+          //   println(g.nodesArray(nodeKind.map(_.toInt).getOrElse(0)).length)
+          //   println(mergeArray1.length)
+          //   println(g.neighbors(pos).asInstanceOf[Array[Int]].length)
+          //   println("---")
+          //   for(i <- g.neighbors(pos).asInstanceOf[Array[Int]]) println(i)
+          //   println("???")
+          //   for(i <- mergeArray1) println(i)
+          //   //println(tt)
+          //   //println("---")
+          //   //println(newLength)
+          //   //println(g.nodesArray(nodeKind.map(_.toInt).getOrElse(0)).length)
+          // }
+          g.neighbors(pos) = mergeArray1
+
+
+
+ 
           g.neighbors(pos + 1) = readArray(fileChannel, edgeItem.neighbors, nodeRemapper, pool)
+
+          var newLength2 = 0
+          if(g.neighbors(pos+1) != null){
+            newLength2 = g.neighbors(pos + 1).asInstanceOf[Array[GNode]].length 
+          }
+
+          var oldLength2 = 0
+          val tem2 = g.neighbors(pos+1)
+          if(g.neighbors(pos+1) != null){
+            oldLength2 = tem2.asInstanceOf[Array[GNode]].length 
+          }
+
+          val mergeLength2 = oldLength2 + newLength2
+          val mergeArray2 = new Array[GNode](mergeLength2)
+     
+
+          for(i <- 0 to oldLength2-1){
+            mergeArray2(i) = tem2.asInstanceOf[Array[GNode]](i)
+          }
+         
+          for(i <- oldLength2 to mergeLength2-1){
+           
+            mergeArray2(i) = g.neighbors(pos+1).asInstanceOf[Array[GNode]](i-oldLength2)
+          }
+          g.neighbors(pos+1) = mergeArray2
+
+
+
+
+  
+
+          var oldLength3 = 0
+          val tem3 = g.neighbors(pos+2)
+        
+          if(tem3 != null){
+            if(tem3.isInstanceOf[Array[String]]){
+              oldLength3 = tem3.asInstanceOf[Array[String]].length
+              
+            }else{
+              oldLength3 = 1
+              
+            }
+
+          }
+
+
+          var newLength3 = 0
+
           val property = readArray(fileChannel, edgeItem.property, nodeRemapper, pool)
-          if (property != null)
+          if (property != null){
             g.neighbors(pos + 2) = property
+            newLength3 = property.length
+            //println(property.length)
+            
+          }
+
+
+          val mergeLength3 = oldLength3 + newLength3
+          if(mergeLength3 != 0 && tem3 != null){
+            val mergeArray3 = new Array[String](mergeLength3)
+
+            if(tem3.isInstanceOf[Array[String]]){
+
+              for(i <- 0 to oldLength3-1){
+                mergeArray3(i) = tem3.asInstanceOf[Array[String]](i)
+              }
+              //println("world")
+              for(i <- oldLength3 to mergeLength3-1){
+                // The number of this should be changed
+                // println(i)
+                // println(i-oldLength)
+                mergeArray3(i) = g.neighbors(pos+2).asInstanceOf[Array[String]](i-oldLength3)
+              }
+              g.neighbors(pos+2) = mergeArray3
+
+            }else{
+              val empty = "<empty>"
+              mergeArray3(0) = empty
+              for(i <- oldLength3 to mergeLength3-1){
+                mergeArray3(i) = g.neighbors(pos+2).asInstanceOf[Array[String]](i-oldLength3)
+              }
+              g.neighbors(pos+2) = mergeArray3
+              //println(oldLength3)
+
+            }
+
+          }
+
+
         }
+
       }
 
       val propertykinds = mutable.HashMap[(String, String), Int]()
@@ -149,9 +293,122 @@ object cpgMerge{
         //println(propertyKind)
         if (nodeKind.isDefined && propertyKind.isDefined) {
           val pos = g.schema.propertyOffsetArrayIndex(nodeKind.get, propertyKind.get)
+
+          val tem_pos = g.properties(pos)
+          val tem_pos1 = g.properties(pos + 1)
           g.properties(pos) = deltaDecode(readArray(fileChannel, property.qty, nodeRemapper, pool).asInstanceOf[Array[Int]])
           g.properties(pos + 1) = readArray(fileChannel, property.property, nodeRemapper, pool)
-          //println(g.properties(pos+1))
+          val new_pos = g.properties(pos)
+          val new_pos1 = g.properties(pos + 1)
+
+          if(tem_pos1 != null) {
+            val oldPropertyLength = tem_pos.asInstanceOf[Array[Int]].length
+            val newPropertyLength = new_pos.asInstanceOf[Array[Int]].length
+            // println(oldPropertyLength)
+            // println(newPropertyLength)
+            val merge_pos_length = oldPropertyLength + newPropertyLength - 1
+
+            //first we merge pos
+            val merge_pos = new Array[Int](merge_pos_length)
+            for(i <- 0 to oldPropertyLength-1){
+              //println(tem_pos.asInstanceOf[Array[Int]](i))
+              merge_pos(i) = tem_pos.asInstanceOf[Array[Int]](i)
+            }
+            //println("next")
+            for(i <- oldPropertyLength to merge_pos_length-1){
+              merge_pos(i) = new_pos.asInstanceOf[Array[Int]](i-oldPropertyLength+1) + merge_pos(oldPropertyLength-1)
+            }
+
+            //for(i <-  new_pos.asInstanceOf[Array[Int]]) println(i)
+            //println("finally")
+            //for(i <- merge_pos) println(i)
+            //println("---")
+            //mergeArray1(i) = g.neighbors(pos).asInstanceOf[Array[Int]](i-oldLength+1) + mergeArray1(oldLength-1)
+            
+
+
+            //then we merge pos+1
+            val old_pos1_length = tem_pos.asInstanceOf[Array[Int]](oldPropertyLength-1)
+            val new_pos1_length = new_pos.asInstanceOf[Array[Int]](newPropertyLength-1)
+            val merge_pos1_length = merge_pos(merge_pos_length-1)
+            if(tem_pos1.isInstanceOf[Array[Int]]){
+              val merge_pos1 = new Array[Int](merge_pos1_length)
+              //println("first")
+              for(i <- 0 to old_pos1_length-1){
+                //println(tem_pos1.asInstanceOf[Array[Int]](i))
+                merge_pos1(i) = tem_pos1.asInstanceOf[Array[Int]](i)
+              }
+              // println("second")
+              for(i <- 0 to new_pos1_length-1){
+                // println(new_pos1.asInstanceOf[Array[Int]](i))
+                merge_pos1(i+old_pos1_length) = new_pos1.asInstanceOf[Array[Int]](i)
+              }
+              // println("third")
+              // for(i <- merge_pos1) println(i)
+            }else if(tem_pos1.isInstanceOf[Array[Boolean]]){
+              val merge_pos1 = new Array[Boolean](merge_pos1_length)
+              // println("first")
+              for(i <- 0 to old_pos1_length-1){
+                // println(tem_pos1.asInstanceOf[Array[Boolean]](i))
+                merge_pos1(i) = tem_pos1.asInstanceOf[Array[Boolean]](i)
+              }
+              // println("second")
+              for(i <- 0 to new_pos1_length-1){
+                // println(new_pos1.asInstanceOf[Array[Boolean]](i))
+                merge_pos1(i+old_pos1_length) = new_pos1.asInstanceOf[Array[Boolean]](i)
+              }
+              // println("third")
+              // for(i <- merge_pos1) println(i)
+            }else if(tem_pos1.isInstanceOf[Array[String]]){
+              val merge_pos1 = new Array[String](merge_pos1_length)
+              // println("first")
+              for(i <- 0 to old_pos1_length-1){
+                // println(tem_pos1.asInstanceOf[Array[String]](i))
+                merge_pos1(i) = tem_pos1.asInstanceOf[Array[String]](i)
+              }
+              // println("second")
+              for(i <- 0 to new_pos1_length-1){
+                // println(new_pos1.asInstanceOf[Array[String]](i))
+                merge_pos1(i+old_pos1_length) = new_pos1.asInstanceOf[Array[String]](i)
+              }
+              // println("third")
+              // for(i <- merge_pos1) println(i)
+            }else{
+              //println("hehe")
+            }
+            
+
+
+
+            // println(tem_pos1.getClass)
+            // println(g.properties(pos + 1).getClass)
+            // println("---")
+          }
+
+          // if(tem_pos != null){
+          // println("---")
+          // println(tem_pos.asInstanceOf[Array[Int]].length)
+          // println("content")
+          // for(i <- tem_pos.asInstanceOf[Array[Int]]){
+          //   println(i)
+          // }
+          // println("next")
+          // if(tem_pos1.isInstanceOf[Array[Int]]){
+          //   //println("hello");
+          //   println(tem_pos1.asInstanceOf[Array[Int]].length)
+          // }else if(tem_pos1.isInstanceOf[Array[Boolean]]){
+          //   println(tem_pos1.asInstanceOf[Array[Boolean]].length)
+          //   //println("world");
+          // }else if(tem_pos1.isInstanceOf[Array[String]]){
+          //   println(tem_pos1.asInstanceOf[Array[String]].length)
+          //   //println("hehe")
+          // }else{
+          //   println("????????????????????????????????")
+          // }
+          // }
+
+          // println("???")
+          //println(g.properties(pos + 1).getClass)
         }
       }
       //println(g)
